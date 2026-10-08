@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Street Light Management System | Karnataka</title>
+  <meta name="description" content="IoT-Based Intelligent Street Lighting & Energy Management for Karnataka across 30 Cities">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ==========================================================
+       LOGIN & OTP VERIFICATION VIEW
+       ========================================================== -->
+  <div id="view-login">
+    <div class="login-bg-overlay"></div>
+    <div class="login-card">
+      <div class="login-brand-header">
+        <div class="brand-icon-wrap">
+          💡
+        </div>
+        <h1 class="login-title">Smart Street Light</h1>
+        <h2 class="login-subtitle">Management System</h2>
+        <div class="karnataka-gov-tag">Government of Karnataka • Smart Energy Grid</div>
+      </div>
+
+      <!-- Demo Credentials Highlight Box -->
+      <div class="demo-credentials-banner">
+        <div style="font-weight: 700; color: #fff; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+          <span>📋 College Project Demo Login</span>
+          <button type="button" id="btn-autofill-demo" class="btn btn-outline btn-xs" style="color: var(--accent-yellow-bright);">
+            ⚡ Auto-Fill
+          </button>
+        </div>
+        <div class="demo-cred-row">
+          <span>Mobile Number:</span>
+          <code>123456789</code>
+        </div>
+        <div class="demo-cred-row">
+          <span>Security Password:</span>
+          <code>786786</code>
+        </div>
+      </div>
+
+      <!-- Step 1: Mobile & Password Form -->
+      <div id="login-step-credentials">
+        <div id="login-error-msg" class="error-banner hidden"></div>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-mobile">Registered Mobile Number</label>
+            <div class="input-with-icon">
+              <span class="input-icon">📱</span>
+              <input type="text" id="login-mobile" class="form-input font-mono" placeholder="123456789" required autocomplete="tel">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="login-password">Access Password</label>
+            <div class="input-with-icon">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="login-password" class="form-input font-mono" placeholder="••••••" required autocomplete="current-password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top: 24px; padding: 12px;">
+            <span>Sign In to Command Center</span>
+            <span>➔</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Step 2: OTP Verification Interface -->
+      <div id="login-step-otp" class="hidden">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff;">Two-Factor Authentication</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+            Security code sent to <strong id="otp-sent-mobile" class="text-yellow">+91 123456789</strong>
+          </p>
+        </div>
+
+        <div id="otp-error-msg" class="error-banner hidden"></div>
+
+        <form id="otp-form">
+          <div class="otp-inputs-row">
+            <input type="text" maxlength="1" class="otp-digit-input" autofocus>
+            <input type="text" maxlength="1" class="otp-digit-input">
+            <input type="text" maxlength="1" class="otp-digit-input">
+            <input type="text" maxlength="1" class="otp-digit-input">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <button type="button" id="btn-autofill-otp" class="btn btn-outline btn-xs text-yellow">
+              ⚡ Auto-Fill Demo OTP (7860)
+            </button>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Resend in <span class="text-cyan">30s</span></span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="padding: 12px;">
+            <span>Verify & Enter Dashboard</span>
+            <span>✓</span>
+          </button>
+
+          <button type="button" id="btn-back-to-password" class="btn btn-outline btn-block btn-xs" style="margin-top: 12px;">
+            ← Back to Password Entry
+          </button>
+        </form>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px; font-size: 0.72rem; color: var(--text-muted);">
+        Karnataka State Electronic Energy Management • 30 Districts Node
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MAIN COMMAND & CONTROL APPLICATION
+       ========================================================== -->
+  <div id="view-app" class="hidden">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="app-sidebar" class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-icon">💡</div>
+        <div>
+          <div class="sidebar-title">SMART STREET LIGHT</div>
+          <div class="sidebar-subtitle">Karnataka Grid • 30 Cities</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-category">Main Operations</div>
+        <a class="nav-item active" data-nav-tab="dashboard">
+          <div class="nav-item-left">
+            <span>📊</span>
+            <span>Dashboard Overview</span>
+          </div>
+        </a>
+        <a class="nav-item" data-nav-tab="map">
+          <div class="nav-item-left">
+            <span>🗺️</span>
+            <span>Karnataka Map (30 Cities)</span>
+          </div>
+          <span class="badge badge-normal">30</span>
+        </a>
+        <a class="nav-item" data-nav-tab="cities">
+          <div class="nav-item-left">
+            <span>💡</span>
+            <span>Street Light Monitoring</span>
+          </div>
+        </a>
+
+        <div class="nav-category">Automation & Analytics</div>
+        <a class="nav-item" data-nav-tab="simulation">
+          <div class="nav-item-left">
+            <span>⚡</span>
+            <span>IoT Simulation Deck</span>
+          </div>
+          <span class="badge badge-warning">Live</span>
+        </a>
+        <a class="nav-item" data-nav-tab="analytics">
+          <div class="nav-item-left">
+            <span>📈</span>
+            <span>Analytics & Energy</span>
+          </div>
+        </a>
+        <a class="nav-item" data-nav-tab="alerts">
+          <div class="nav-item-left">
+            <span>🚨</span>
+            <span>Alerts & Dispatch</span>
+          </div>
+          <span id="header-alert-badge" class="badge badge-fault">1</span>
+        </a>
+
+        <a class="nav-item" data-nav-tab="gemini">
+          <div class="nav-item-left">
+            <span>✨</span>
+            <span>Gemini AI Advisor</span>
+          </div>
+          <span class="badge badge-normal" id="sidebar-gemini-badge">1.5 AI</span>
+        </a>
+
+        <div class="nav-category">Project Details</div>
+        <a class="nav-item" data-nav-tab="architecture">
+          <div class="nav-item-left">
+            <span>🏗️</span>
+            <span>IoT Hardware & Specs</span>
+          </div>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="system-status-indicator">
+          <div class="live-pulse-dot"></div>
+          <span>LoRaWAN Gateway Connected</span>
+        </div>
+        <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 8px;">
+          ESCOM Zones: BESCOM, HESCOM, GESCOM, MESCOM, CHESCOM
+        </div>
+        <button id="btn-logout" class="btn btn-outline btn-xs btn-block">
+          <span>Sign Out</span>
+          <span>🚪</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="app-main">
+
+      <!-- TOP COMMAND HEADER -->
+      <header class="command-header">
+        <div class="command-header-left">
+          <button id="btn-mobile-menu" class="btn btn-outline btn-xs" style="display: none;">☰</button>
+          <div class="header-search-wrap">
+            <span class="header-search-icon">🔍</span>
+            <input type="text" class="form-input city-search-input" placeholder="Search Karnataka city (e.g. Tumakuru, Mysuru)...">
+          </div>
+        </div>
+
+        <div class="command-header-right">
+          <!-- Gemini AI Key Configure Button -->
+          <button id="btn-open-gemini-key" class="btn btn-outline btn-xs" title="Configure Google Gemini API Key" style="border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.08);">
+            <span>✨ Gemini AI</span>
+            <span id="gemini-key-status-dot" class="badge badge-warning" style="font-size: 0.65rem; padding: 1px 6px;">Key Setup</span>
+          </button>
+
+          <!-- Day / Dusk / Night Mode Pills -->
+          <div class="time-cycle-pills">
+            <button class="pill-btn" data-time-mode="DAY">
+              <span>☀️</span> Day (Off)
+            </button>
+            <button class="pill-btn" data-time-mode="DUSK">
+              <span>🌆</span> Dusk
+            </button>
+            <button class="pill-btn active" data-time-mode="NIGHT">
+              <span>🌙</span> Night (Auto)
+            </button>
+          </div>
+
+          <!-- Audio FX Toggle -->
+          <button id="btn-sound-toggle" class="btn btn-outline btn-xs" title="Toggle Sound FX">
+            🔊
+          </button>
+
+          <!-- Current Time -->
+          <div style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--accent-yellow); padding: 4px 8px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid var(--border-subtle);">
+            IST 20:30 (Live IoT Loop)
+          </div>
+        </div>
+      </header>
+
+      <!-- LIVE SIMULATION QUICK TRIGGER BAR -->
+      <section class="sim-quick-bar">
+        <div class="sim-quick-label">
+          <span>⚡ Live IoT Simulator:</span>
+        </div>
+        <div class="sim-actions-group">
+          <button id="btn-sim-vehicle" class="btn btn-primary btn-xs">
+            <span>🚗 Detect Vehicle Wave</span>
+          </button>
+          <button id="btn-sim-pedestrian" class="btn btn-cyan btn-xs">
+            <span>🚶 Detect Pedestrian</span>
+          </button>
+          <button id="btn-sim-fault" class="btn btn-danger btn-xs">
+            <span>⚠️ Inject Sensor Fault</span>
+          </button>
+          <button id="btn-sim-resolve-all" class="btn btn-outline btn-xs">
+            <span>🔧 Resolve Faults</span>
+          </button>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; margin-left: 8px;">
+            <input type="checkbox" id="toggle-auto-traffic" checked style="accent-color: var(--accent-yellow);">
+            <span>Auto Background Traffic</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- TAB PANE CONTENT AREA -->
+      <div class="app-content-body">
+
+        <!-- ==========================================================
+             PANE 1: DASHBOARD OVERVIEW
+             ========================================================== -->
+        <div id="pane-dashboard" class="tab-pane">
+
+          <!-- Project Title Banner -->
+          <div style="margin-bottom: 20px;">
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: #fff; letter-spacing: 0.02em;">
+              SMART STREET LIGHT MANAGEMENT SYSTEM
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--accent-yellow); font-weight: 500;">
+              IoT-Based Intelligent Street Lighting & Energy Management for Karnataka
+            </p>
+          </div>
+
+          <!-- KPI Cards Deck Grid -->
+          <div class="kpis-deck-grid">
+            <div class="kpi-card" style="--card-accent: var(--accent-blue)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Cities Monitored</span>
+                <div class="kpi-icon-pill">📍</div>
+              </div>
+              <div id="kpi-total-cities" class="kpi-value text-cyan">30</div>
+              <div class="kpi-trend">All 30 Karnataka Districts</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--accent-cyan)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Total Street Lights</span>
+                <div class="kpi-icon-pill">💡</div>
+              </div>
+              <div id="kpi-total-lights" class="kpi-value">22,860</div>
+              <div class="kpi-trend">Smart LED Luminaires</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--accent-yellow)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Lights Currently ON</span>
+                <div class="kpi-icon-pill">✨</div>
+              </div>
+              <div id="kpi-lights-on" class="kpi-value text-yellow">4,850</div>
+              <div class="kpi-trend">100% Active (Motion Triggered)</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--accent-emerald)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Operating Automatically</span>
+                <div class="kpi-icon-pill">🤖</div>
+              </div>
+              <div id="kpi-lights-auto" class="kpi-value text-emerald">22,858</div>
+              <div class="kpi-trend">Autonomous IoT LDR/PIR Mode</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--accent-red)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Faulty Lights</span>
+                <div class="kpi-icon-pill">🚨</div>
+              </div>
+              <div id="kpi-faulty-lights" class="kpi-value text-red">1</div>
+              <div class="kpi-trend">SL-104 Tumakuru Alerted</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--accent-yellow)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Power Saved</span>
+                <div class="kpi-icon-pill">🌱</div>
+              </div>
+              <div id="kpi-power-saved" class="kpi-value text-emerald">64%</div>
+              <div class="kpi-trend">vs Conventional 150W All-Night</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--accent-cyan)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Daily Energy Saved</span>
+                <div class="kpi-icon-pill">⚡</div>
+              </div>
+              <div id="kpi-power-saved-kw" class="kpi-value text-cyan">1,280 kW</div>
+              <div class="kpi-trend">Est. <span id="kpi-cost-saved">₹1,30,560/day</span> saved</div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--accent-purple)">
+              <div class="kpi-card-header">
+                <span class="kpi-title">Traffic Detections</span>
+                <div class="kpi-icon-pill">🚦</div>
+              </div>
+              <div class="kpi-value">
+                <span id="kpi-vehicles-count" class="text-yellow">1,240</span> / 
+                <span id="kpi-pedestrians-count" class="text-cyan">875</span>
+              </div>
+              <div class="kpi-trend">Vehicles / Pedestrians Count</div>
+            </div>
+          </div>
+
+          <!-- Interactive Karnataka Map Section -->
+          <div class="map-panel-card">
+            <div class="map-panel-header">
+              <div class="map-panel-title">
+                <span>🗺️ Interactive Karnataka State Grid (30 Locations)</span>
+                <span class="badge badge-normal">Click marker to inspect city</span>
+              </div>
+
+              <!-- Map Filter Chips -->
+              <div class="map-filter-group">
+                <button class="map-filter-btn active" data-map-filter="ALL">All (30)</button>
+                <button class="map-filter-btn" data-map-filter="normal">🟢 Normal</button>
+                <button class="map-filter-btn" data-map-filter="warning">🟡 Warning</button>
+                <button class="map-filter-btn" data-map-filter="fault">🔴 Fault</button>
+                <button class="map-filter-btn" data-map-filter="maintenance">🔵 Maintenance</button>
+              </div>
+            </div>
+
+            <div id="dashboard-map-slot">
+              <div id="karnataka-map-container"></div>
+            </div>
+          </div>
+
+          <!-- Live Activity Stream & Recent Alerts Grid -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+            <div class="app-table-wrap">
+              <div style="padding: 14px 18px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff;">🚨 High-Priority Grid Anomaly Log</h3>
+                <button class="btn btn-outline btn-xs" onclick="window.app.switchTab('alerts')">View All Alarms ➔</button>
+              </div>
+              <table class="app-table">
+                <thead>
+                  <tr>
+                    <th>Alert ID</th>
+                    <th>Time</th>
+                    <th>City</th>
+                    <th>Light Pole</th>
+                    <th>Severity</th>
+                    <th>Failure Reason</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="alerts-table-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="chart-card-box">
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 14px;">📡 Live Telemetry Stream</h3>
+              <div id="live-activity-stream" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             PANE 2: FULLSCREEN MAP VIEW
+             ========================================================== -->
+        <div id="pane-map" class="tab-pane hidden">
+          <div class="map-panel-card map-fullscreen-view">
+            <div class="map-panel-header">
+              <div class="map-panel-title">
+                <span>🗺️ Karnataka Geographic Smart-Grid Command Map (30 Cities)</span>
+                <span class="badge badge-normal">30 Districts Connected</span>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <div class="map-filter-group">
+                  <button class="map-filter-btn active" data-map-filter="ALL">All 30</button>
+                  <button class="map-filter-btn" data-map-filter="normal">🟢 Normal</button>
+                  <button class="map-filter-btn" data-map-filter="warning">🟡 Warning</button>
+                  <button class="map-filter-btn" data-map-filter="fault">🔴 Fault</button>
+                  <button class="map-filter-btn" data-map-filter="maintenance">🔵 Service</button>
+                </div>
+                <button class="btn btn-outline btn-xs" onclick="window.app.mapManager.resetView()">
+                  <span>Reset Extent</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Map Status Color Legend -->
+            <div style="padding: 8px 20px; background: rgba(0,0,0,0.3); border-bottom: 1px solid var(--border-subtle); display: flex; gap: 16px; font-size: 0.72rem; flex-wrap: wrap; align-items: center;">
+              <span style="color: var(--text-muted); font-weight: 700;">PIN LEGEND:</span>
+              <span style="color: #10b981;">● Green = Normal Operation</span>
+              <span style="color: #f59e0b;">● Yellow = Sensor Warning (Drift)</span>
+              <span style="color: #ef4444;">● Red = Hardware Fault (PIR / Driver)</span>
+              <span style="color: #3b82f6;">● Blue = Scheduled Maintenance</span>
+            </div>
+
+            <div id="fullscreen-map-slot"></div>
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             PANE 3: CITY MONITORING & INDIVIDUAL STREET LIGHTS
+             ========================================================== -->
+        <div id="pane-cities" class="tab-pane hidden">
+
+          <!-- City Selector & Filter Header -->
+          <div class="city-detail-banner">
+            <div class="city-detail-header-left">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h2 id="city-detail-title">Tumakuru Smart Street Light Grid</h2>
+                <span id="city-detail-kannada" class="kannada-text font-bold" style="font-size: 1.2rem;">ತುಮಕೂರು</span>
+              </div>
+              <div id="city-detail-district" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                Tumakuru District • Authority: BESCOM
+              </div>
+            </div>
+
+            <div class="city-stats-hud-strip">
+              <div class="hud-strip-stat">
+                <span class="lbl">Monitored Poles</span>
+                <span id="city-detail-total" class="val">840</span>
+              </div>
+              <div class="hud-strip-stat">
+                <span class="lbl">Active Luminaires</span>
+                <span id="city-detail-active" class="val text-cyan">210</span>
+              </div>
+              <div class="hud-strip-stat">
+                <span class="lbl">Grid Faults</span>
+                <span id="city-detail-faults" class="val text-red">1</span>
+              </div>
+              <div class="hud-strip-stat">
+                <span class="lbl">Hourly Load</span>
+                <span id="city-detail-power" class="val text-yellow">48.2 kW</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Fault Alert Callout Banner -->
+          <div id="city-fault-alert-banner" class="hidden" style="margin-bottom: 20px; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--accent-red); border-radius: 10px; padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 16px;">
+            <!-- Populated dynamically if city has fault -->
+          </div>
+
+          <!-- Simulated Visual Street Corridor (Road Animation) -->
+          <div class="street-corridor-box">
+            <div class="street-corridor-header">
+              <div>
+                <h3 style="font-size: 1rem; font-weight: 700; color: #fff;">🛣️ Real-Time Street Corridor Luminescence Simulation</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">
+                  Watch light poles adaptively illuminate upon vehicle/pedestrian approach, then step down to conserve power.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary btn-xs" onclick="window.app.triggerMotionOnPole(window.app.selectedCityId, 0)">
+                  <span>Trigger Vehicle Approach</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="corridor-road-surface" id="street-corridor-vis">
+              <!-- Dynamically populated poles and moving vehicles -->
+            </div>
+          </div>
+
+          <!-- Section Label -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff;">
+              ⚡ Individual Street Light Poles & IoT Telemetry
+            </h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Simulated IoT Nodes (PIR, LDR, ACS712 Current Sensor)</span>
+          </div>
+
+          <!-- Individual Pole Cards Grid -->
+          <div class="poles-grid" id="poles-cards-grid">
+            <!-- Dynamically populated pole cards -->
+          </div>
+
+          <!-- All 30 Karnataka Cities Quick Jump Grid -->
+          <div style="margin-top: 40px; margin-bottom: 16px;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 4px;">
+              🏙️ Switch to Any of the 30 Karnataka Cities
+            </h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Select a city to inspect its individual street lights and sensor health.</p>
+          </div>
+          <div class="cities-grid" id="cities-cards-grid">
+            <!-- Populated with 30 cities -->
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             PANE 4: IOT SIMULATION LAB & CONTROL DECK
+             ========================================================== -->
+        <div id="pane-simulation" class="tab-pane hidden">
+          <div style="margin-bottom: 24px;">
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">
+              ⚡ IoT Automation & Sensor Demonstration Lab
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--accent-yellow);">
+              Interactive test bench to simulate environmental triggers, motion bursts, and component faults.
+            </p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px;">
+
+            <!-- Simulation Card 1: Day / Night Cycle -->
+            <div class="kpi-card">
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">
+                ☀️ 1. Ambient Light Automation (LDR Sensor)
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">
+                The LDR photocell monitors natural lux levels. Above 600 Lux, lamps remain completely OFF. Below 100 Lux, lamps turn ON at 30% standby power.
+              </p>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button class="btn btn-outline btn-sm btn-block" onclick="window.app.setTimeOfDay('DAY')">☀️ Simulate Day</button>
+                <button class="btn btn-outline btn-sm btn-block" onclick="window.app.setTimeOfDay('DUSK')">🌆 Simulate Dusk</button>
+                <button class="btn btn-primary btn-sm btn-block" onclick="window.app.setTimeOfDay('NIGHT')">🌙 Simulate Night</button>
+              </div>
+              <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; font-size: 0.75rem;">
+                <div><strong>Logic Rule:</strong> If LDR &gt; 500 Lux ➔ Mode: OFF (0W)</div>
+                <div><strong>Night Standby:</strong> If LDR &lt; 50 Lux & PIR == Idle ➔ Dimmed (30%, 45W)</div>
+              </div>
+            </div>
+
+            <!-- Simulation Card 2: Vehicle & Pedestrian Dynamic Dimming -->
+            <div class="kpi-card">
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">
+                🚗 2. Dynamic Motion Dimming (PIR Sensor)
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">
+                When movement is detected, lights ramp immediately to 100% (150W). Once the entity passes, a decaying timer returns the lamp to 30% standby.
+              </p>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button class="btn btn-primary btn-sm btn-block" id="btn-lab-vehicle" onclick="window.app.triggerVehicleDetection()">
+                  🚗 Spawn Vehicle Corridor Wave
+                </button>
+                <button class="btn btn-cyan btn-sm btn-block" id="btn-lab-pedestrian" onclick="window.app.triggerPedestrianDetection()">
+                  🚶 Spawn Pedestrian
+                </button>
+              </div>
+              <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; font-size: 0.75rem;">
+                <div><strong>Savings Math:</strong> Baseline 150W all night = 1.80 kWh</div>
+                <div><strong>IoT Smart:</strong> 45W idle (70%) + 150W peak (30%) = 0.76 kWh (<strong>~58% to 65% energy saved</strong>)</div>
+              </div>
+            </div>
+
+            <!-- Simulation Card 3: Fault Injection -->
+            <div class="kpi-card">
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">
+                🚨 3. Fault & Anomaly Injection Lab
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 16px;">
+                Simulate component failures such as blown LED luminaires, PIR motion sensor timeouts, or current surges.
+              </p>
+              <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                <button class="btn btn-danger btn-sm btn-block" onclick="iotEngine.triggerFault(window.app.selectedCityId, null, 'PIR')">
+                  ⚠️ Inject PIR Sensor Failure
+                </button>
+                <button class="btn btn-outline btn-sm btn-block text-red" onclick="iotEngine.triggerFault(window.app.selectedCityId, null, 'Driver')">
+                  💥 Inject Luminaire Driver Open-Circuit
+                </button>
+                <button class="btn btn-outline btn-sm btn-block" onclick="iotEngine.resolveAllFaults()">
+                  🔧 Auto-Repair & Clear All System Faults
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             PANE 5: ANALYTICS & ENERGY REPORTS
+             ========================================================== -->
+        <div id="pane-analytics" class="tab-pane hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">
+                📈 Analytics & Energy Intelligence
+              </h2>
+              <p style="font-size: 0.85rem; color: var(--accent-yellow);">
+                Power consumption trends, smart dimming energy savings, and traffic correlation.
+              </p>
+            </div>
+
+            <!-- Period Filter Pills -->
+            <div style="display: flex; background: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 2px;">
+              <button class="pill-btn active" data-chart-filter="TODAY">Today (24h)</button>
+              <button class="pill-btn" data-chart-filter="7DAYS">Last 7 Days</button>
+              <button class="pill-btn" data-chart-filter="30DAYS">Last 30 Days</button>
+            </div>
+          </div>
+
+          <div class="charts-grid-layout">
+            <!-- Chart 1: Energy Consumption vs Baseline -->
+            <div class="chart-card-box">
+              <div class="chart-card-header">
+                <span class="chart-card-title">⚡ Energy Consumption: Smart IoT vs Conventional Baseline</span>
+                <span class="badge badge-normal">-64% Load Reduction</span>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="chart-energy-comparison"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: Hourly Energy Savings % -->
+            <div class="chart-card-box">
+              <div class="chart-card-header">
+                <span class="chart-card-title">🌱 Efficiency Gain: Energy Saved (%) Over Time</span>
+                <span class="badge badge-warning">Max 80% at 3:00 AM</span>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="chart-hourly-savings"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: Active Status Doughnut -->
+            <div class="chart-card-box">
+              <div class="chart-card-header">
+                <span class="chart-card-title">💡 Street Light Operating Status Breakdown</span>
+                <span class="badge badge-normal">99.8% Healthy</span>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="chart-light-status"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Traffic Patterns -->
+            <div class="chart-card-box">
+              <div class="chart-card-header">
+                <span class="chart-card-title">🚦 Vehicle vs Pedestrian Movement Volume</span>
+                <span class="badge badge-cyan">PIR Sensor Aggregation</span>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="chart-traffic-activity"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 5: Fault Categories -->
+            <div class="chart-card-box" style="grid-column: 1 / -1;">
+              <div class="chart-card-header">
+                <span class="chart-card-title">🛠️ Grid Anomaly Classification by Component</span>
+                <span class="badge badge-fault">Preventative Diagnostics</span>
+              </div>
+              <div class="chart-canvas-container" style="height: 220px;">
+                <canvas id="chart-fault-categories"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             PANE 6: ALERTS & ELECTRICITY DEPARTMENT DISPATCH
+             ========================================================== -->
+        <div id="pane-alerts" class="tab-pane hidden">
+          <div style="margin-bottom: 24px;">
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">
+              🚨 Alerts & Electricity Department Dispatch Center
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--accent-yellow);">
+              Real-time monitoring of luminaire blowouts, sensor drift, and automated ESCOM crew dispatch.
+            </p>
+          </div>
+
+          <div class="app-table-wrap">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>Alert ID</th>
+                  <th>Timestamp</th>
+                  <th>City / District</th>
+                  <th>Pole Number</th>
+                  <th>Severity</th>
+                  <th>Anomaly Description</th>
+                  <th>Department Action</th>
+                </tr>
+              </thead>
+              <tbody id="alerts-table-body-full">
+                <!-- Re-used or cloned via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             PANE 7: IOT ARCHITECTURE & HARDWARE SPEC (Bonus for College Viva)
+             ========================================================== -->
+        <div id="pane-architecture" class="tab-pane hidden">
+          <div style="margin-bottom: 24px;">
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">
+              🏗️ System Architecture & IoT Hardware Specification
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--accent-yellow);">
+              Technical blueprint for College Project Demonstration, Hackathon, and Viva Voce.
+            </p>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <div class="kpi-card">
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">🔌 Pole Hardware Node</h3>
+              <ul style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.8; padding-left: 18px;">
+                <li><strong>Microcontroller:</strong> ESP32 Dual-Core / Arduino Nano with LoRa SX1276</li>
+                <li><strong>Ambient Light:</strong> LDR Photocell sensor module with LM393 Comparator</li>
+                <li><strong>Motion Detection:</strong> HC-SR501 PIR sensor / RCWL-0516 Microwave Radar</li>
+                <li><strong>Current Sensing:</strong> ACS712 (5A/20A) Hall-effect sensor for blown lamp & short circuit detection</li>
+                <li><strong>Driver:</strong> PWM MOSFET IRF520 or 230V AC Optocoupled Triac dimmer</li>
+                <li><strong>Power:</strong> 12V DC Solar Battery / 230V AC SMPS with buck converter</li>
+              </ul>
+            </div>
+
+            <div class="kpi-card">
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">📡 Communication Protocol</h3>
+              <ul style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.8; padding-left: 18px;">
+                <li><strong>Field Mesh:</strong> LoRaWAN 865-867 MHz (India Band) for long-range pole-to-gateway telemetry (up to 12 km)</li>
+                <li><strong>Gateway:</strong> RAK Wireless / Raspberry Pi LoRaWAN Gateway</li>
+                <li><strong>Cloud Protocol:</strong> MQTT over TLS (Port 8883) with JSON payloads</li>
+                <li><strong>Backend:</strong> Cloud IoT Broker + REST API + WebSockets for real-time dashboard push</li>
+              </ul>
+            </div>
+
+            <div class="kpi-card">
+              <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">⚖️ Karnataka ESCOM Integration</h3>
+              <ul style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.8; padding-left: 18px;">
+                <li><strong>BESCOM:</strong> Bengaluru, Tumakuru, Kolar, Ramanagara, Davanagere, Chitradurga</li>
+                <li><strong>HESCOM:</strong> Hubballi, Dharwad, Belagavi, Vijayapura, Bagalkot, Gadag, Uttara Kannada</li>
+                <li><strong>GESCOM:</strong> Kalaburagi, Ballari, Raichur, Bidar, Yadgir, Koppal</li>
+                <li><strong>MESCOM:</strong> Mangaluru, Udupi, Shivamogga, Chikkamagaluru</li>
+                <li><strong>CHESCOM:</strong> Mysuru, Mandya, Hassan, Chamarajanagar, Kodagu</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================
+             PANE 8: GEMINI AI GRID ADVISOR
+             ========================================================== -->
+        <div id="pane-gemini" class="tab-pane hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">
+                  ✨ Karnataka Smart Grid Gemini AI Advisor
+                </h2>
+                <span id="gemini-live-status-pill" class="badge badge-warning">Simulated Sandbox</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--accent-yellow); margin-top: 4px;">
+                Generative AI Assistant for Grid Diagnostics, Autonomous ESCOM Work Orders & Weather Optimization
+              </p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-primary btn-xs" onclick="window.app.openGeminiKeyModal()">
+                <span>🔑 Manage Gemini API Key</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick AI Prompt Shortcuts -->
+          <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button class="btn btn-outline btn-xs" onclick="window.app.askGeminiQuickPrompt('Diagnose the PIR sensor failure on Tumakuru street light TMK-SL-104')">
+              🔍 Diagnose Tumakuru SL-104 Fault
+            </button>
+            <button class="btn btn-outline btn-xs" onclick="window.app.askGeminiQuickPrompt('Audit Karnataka state-wide energy savings and calculate total rupee savings for today')">
+              ⚡ State-Wide Energy Audit
+            </button>
+            <button class="btn btn-outline btn-xs" onclick="window.app.askGeminiQuickPrompt('Generate adaptive street lighting protocols for heavy monsoon rain across coastal Karnataka (Mangaluru/Udupi)')">
+              🌧️ Coastal Monsoon Strategy
+            </button>
+            <button class="btn btn-outline btn-xs" onclick="window.app.askGeminiQuickPrompt('Draft an official BESCOM rapid-dispatch work order ticket for the electrical substation')">
+              📋 Draft BESCOM Work Order
+            </button>
+          </div>
+
+          <!-- Chat History & Dialogue Box -->
+          <div class="kpi-card" style="min-height: 440px; display: flex; flex-direction: column;">
+            <div id="gemini-chat-history" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 16px; max-height: 480px;">
+              <!-- Welcome message -->
+              <div class="ai-chat-bubble ai-bot">
+                <div class="chat-bubble-header">
+                  <strong>✨ Gemini AI Grid Advisor</strong>
+                  <span class="text-muted" style="font-size: 0.7rem;">System Engine</span>
+                </div>
+                <div class="chat-bubble-body">
+                  Welcome to the Karnataka Smart Street Light Command AI Assistant! I am integrated with real-time IoT telemetry from all 30 Karnataka cities. You can ask me to diagnose sensor faults, analyze energy savings, adjust dimming thresholds, or draft official maintenance tickets.
+                </div>
+              </div>
+            </div>
+
+            <!-- Input Box -->
+            <form id="gemini-chat-form" style="display: flex; gap: 10px; margin-top: 16px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+              <input type="text" id="gemini-user-input" class="form-input" placeholder="Ask Gemini AI about Karnataka street lighting, fault diagnosis, energy optimization..." required autocomplete="off">
+              <button type="submit" id="btn-submit-gemini-chat" class="btn btn-primary" style="white-space: nowrap;">
+                <span>Ask AI</span>
+                <span>✨</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 1: NOTIFY ELECTRICITY DEPARTMENT
+       ========================================================== -->
+  <div id="modal-escom-dispatch" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span>⚡ Notify Karnataka Electricity Department</span>
+        </h3>
+        <button class="modal-close-btn" onclick="window.app.closeModal('modal-escom-dispatch')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          You are dispatching an official emergency maintenance ticket to the regional ESCOM operations control room.
+        </p>
+
+        <div class="escom-dispatch-ticket">
+          <div class="ticket-row">
+            <span class="ticket-lbl">Alert ID:</span>
+            <span id="disp-modal-alert-id" class="ticket-val text-cyan">ALT-9042</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Authority:</span>
+            <span id="disp-modal-escom" class="ticket-val text-yellow">BESCOM</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Location:</span>
+            <span id="disp-modal-city" class="ticket-val">Tumakuru (BH Road)</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Street Light ID:</span>
+            <span id="disp-modal-light" class="ticket-val text-red">TMK-SL-104</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Fault Component:</span>
+            <span id="disp-modal-component" class="ticket-val">PIR Motion Sensor</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Incident Summary:</span>
+            <span id="disp-modal-issue" class="ticket-val" style="font-size: 0.8rem; font-family: var(--font-main);">⚠️ Street Light SL-104 in Tumakuru has reported a PIR sensor failure.</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; font-size: 0.75rem; color: var(--text-muted);">
+          Dispatched linemen will be tracked via GPS and repair SLA is governed under Karnataka KPTCL Smart City norms.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="window.app.closeModal('modal-escom-dispatch')">Cancel</button>
+        <button id="btn-confirm-dispatch" class="btn btn-danger btn-sm">
+          <span>Confirm Dispatch Order</span>
+          <span>➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 2: OFFICIAL DISPATCH TICKET RECEIPT
+       ========================================================== -->
+  <div id="modal-ticket-receipt" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title text-emerald">
+          <span>✓ Dispatch Ticket Confirmed</span>
+        </h3>
+        <button class="modal-close-btn" onclick="window.app.closeModal('modal-ticket-receipt')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: 16px;">
+          <div style="font-size: 38px; margin-bottom: 6px;">📋</div>
+          <h4 style="font-size: 1.1rem; font-weight: 800; color: #fff;">Work Order Dispatched</h4>
+          <p style="font-size: 0.8rem; color: var(--accent-emerald);">Automated SMS & Lineman App Notification Sent</p>
+        </div>
+
+        <div class="escom-dispatch-ticket">
+          <div class="ticket-row">
+            <span class="ticket-lbl">Ticket No:</span>
+            <span id="receipt-ticket-no" class="ticket-val text-yellow">KAR-ESCOM-839211</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Electricity Board:</span>
+            <span id="receipt-authority" class="ticket-val">BESCOM</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Location:</span>
+            <span id="receipt-location" class="ticket-val">Tumakuru • BH Road</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Assigned Crew:</span>
+            <span id="receipt-crew" class="ticket-val text-cyan">Rapid Response Squad #4</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Expected SLA:</span>
+            <span id="receipt-sla" class="ticket-val text-emerald">Within 2 Hours</span>
+          </div>
+          <div class="ticket-row">
+            <span class="ticket-lbl">Logged At:</span>
+            <span id="receipt-time" class="ticket-val">Now</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-sm btn-block" onclick="window.app.closeModal('modal-ticket-receipt')">
+          <span>Close Receipt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 3: GOOGLE GEMINI API KEY CONFIGURATION
+       ========================================================== -->
+  <div id="modal-gemini-key" class="modal-backdrop hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          <span>✨ Google Gemini API Key Settings</span>
+        </h3>
+        <button class="modal-close-btn" onclick="window.app.closeModal('modal-gemini-key')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+          Configure your Google Gemini API key to activate live generative AI diagnostics, energy load forecasting, and autonomous ESCOM work order drafting for Karnataka's 30 cities.
+        </p>
+
+        <div class="form-group">
+          <label for="input-gemini-api-key">Gemini API Key (starts with AIzaSy...)</label>
+          <div class="input-with-icon">
+            <span class="input-icon">🔑</span>
+            <input type="password" id="input-gemini-api-key" class="form-input font-mono" placeholder="AIzaSy..." autocomplete="off">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <button type="button" id="btn-toggle-key-visibility" class="btn btn-outline btn-xs">
+            <span>👁️ Toggle Show Key</span>
+          </button>
+          <button type="button" id="btn-clear-gemini-key" class="btn btn-outline btn-xs text-red">
+            <span>🗑️ Remove Key</span>
+          </button>
+        </div>
+
+        <div id="gemini-key-test-feedback" class="hidden" style="padding: 10px 14px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 16px;"></div>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; font-size: 0.76rem; color: var(--text-muted); line-height: 1.6;">
+          <div><strong>📌 How to get your free Gemini API key:</strong></div>
+          <ol style="margin-left: 18px; margin-top: 4px;">
+            <li>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-yellow-bright); text-decoration: underline;">Google AI Studio (aistudio.google.com)</a>.</li>
+            <li>Click <em>"Create API Key"</em> and copy the generated key.</li>
+            <li>Paste it into the field above and click <strong>"Save & Test API Key"</strong>.</li>
+            <li>You can also hardcode it into <code style="color: var(--accent-cyan);">js/config.js</code> directly!</li>
+          </ol>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="window.app.closeModal('modal-gemini-key')">Close</button>
+        <button id="btn-save-gemini-key" class="btn btn-primary btn-sm">
+          <span>Save & Test API Key</span>
+          <span>➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toast-notifications-container"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <!-- Application Logic Modules -->
+  <script src="js/config.js"></script>
+  <script src="js/gemini-service.js"></script>
+  <script src="js/cities-data.js"></script>
+  <script src="js/iot-simulation.js"></script>
+  <script src="js/map-manager.js"></script>
+  <script src="js/charts-manager.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- Sync secondary alerts table -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Sync second alerts table
+      const fullTbody = document.getElementById("alerts-table-body-full");
+      const mainTbody = document.getElementById("alerts-table-body");
+      if (fullTbody && mainTbody) {
+        const observer = new MutationObserver(() => {
+          fullTbody.innerHTML = mainTbody.innerHTML;
+        });
+        observer.observe(mainTbody, { childList: true });
+      }
+    });
+  </script>
+</body>
+</html>
